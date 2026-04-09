@@ -1,0 +1,22 @@
+<div class="login-container">
+  <div class="login-card">
+
+    <div class="logo">🚌</div>
+    <h2>Admin Login</h2>
+    <p class="subtitle">Login to Admin Panel</p>
+
+    <!-- Error -->
+    <div class="error-msg" *ngIf="error">⚠️ {{ error }}</div>
+
+    <label>Email Address</label>
+    <input type="email" [(ngModel)]="email" placeholder="Enter admin email" />
+
+    <label>Password</label>
+    <input type="password" [(ngModel)]="password" placeholder="Enter password" />
+
+    <button (click)="loginAdmin()">
+      {{ loading ? 'Logging in...' : 'Login →' }}
+    </button>
+
+  </div>
+</div>

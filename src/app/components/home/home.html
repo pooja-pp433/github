@@ -1,0 +1,341 @@
+<!-- ===== HERO SECTION ===== -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="hero-circle c1"></div>
+    <div class="hero-circle c2"></div>
+    <div class="hero-circle c3"></div>
+    <div class="hero-circle c4"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-badge">🎟️ India's Trusted Bus Booking Platform</div>
+    <h1 class="hero-title">
+      Book Bus Tickets<br />
+      <span class="gradient-text">Anytime, Anywhere</span>
+    </h1>
+    <p class="hero-desc">
+      Travel smarter with 500+ bus operators, real-time seat selection,<br />
+      and instant booking confirmation.
+    </p>
+
+    <!-- SEARCH CARD -->
+    <div class="search-card">
+      <div class="search-tabs">
+        <button class="tab active">🚌 Bus</button>
+      </div>
+
+      <div class="search-form">
+
+        <!-- FROM -->
+        <div class="search-field dropdown-wrapper">
+          <label>From</label>
+          <div class="field-inner">
+            <span class="field-icon">📍</span>
+            <input
+              type="text"
+              placeholder="Departure City"
+              [(ngModel)]="searchForm.from"
+              (input)="filterCities('from')"
+              (focus)="showDropdown('from')"
+              (blur)="closeDropdowns()"
+              autocomplete="off"
+            />
+          </div>
+          <ul class="dropdown-list" *ngIf="showFromDropdown && filteredFromCities.length > 0">
+            <li *ngFor="let city of filteredFromCities" (mousedown)="selectCity('from', city)">
+              📍 {{ city }}
+            </li>
+          </ul>
+        </div>
+
+        <button class="swap-btn" (click)="swapCities()">⇄</button>
+
+        <!-- TO -->
+        <div class="search-field dropdown-wrapper">
+          <label>To</label>
+          <div class="field-inner">
+            <span class="field-icon">📍</span>
+            <input
+              type="text"
+              placeholder="Destination City"
+              [(ngModel)]="searchForm.to"
+              (input)="filterCities('to')"
+              (focus)="showDropdown('to')"
+              (blur)="closeDropdowns()"
+              autocomplete="off"
+            />
+          </div>
+          <ul class="dropdown-list" *ngIf="showToDropdown && filteredToCities.length > 0">
+            <li *ngFor="let city of filteredToCities" (mousedown)="selectCity('to', city)">
+              📍 {{ city }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- DATE — ✅ min=today se past date select nahi hogi -->
+        <div class="search-field">
+          <label>Date</label>
+          <div class="field-inner">
+            <span class="field-icon">📅</span>
+            <input type="date" [(ngModel)]="searchForm.date" [min]="today" />
+          </div>
+        </div>
+
+        <!-- SEARCH BTN -->
+        <button class="search-btn" (click)="searchBuses()">
+          🔍 Search Buses
+        </button>
+
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat"><strong>10,000+</strong><span>Routes</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><strong>500+</strong><span>Bus Operators</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><strong>2M+</strong><span>Happy Travelers</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><strong>4.8 ⭐</strong><span>App Rating</span></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== POPULAR ROUTES ===== -->
+<section class="popular-routes">
+  <div class="section-header">
+    <h2>Popular Routes</h2>
+    <p>Most booked routes by our travelers</p>
+  </div>
+  <div class="routes-grid">
+    <div class="route-card" *ngFor="let route of popularRoutes" (click)="quickSearch(route)">
+      <div class="route-img">{{ route.emoji }}</div>
+      <div class="route-info">
+        <div class="route-cities">
+          <span class="city-from">{{ route.from }}</span>
+          <span class="route-arrow">→</span>
+          <span class="city-to">{{ route.to }}</span>
+        </div>
+        <div class="route-meta">
+          <span>🕐 {{ route.duration }}</span>
+          <span>💺 {{ route.buses }}+ Buses</span>
+        </div>
+        <div class="route-price">Starts ₹{{ route.price }}</div>
+      </div>
+      <div class="route-tag" *ngIf="route.popular">🔥 Popular</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHY CHOOSE US ===== -->
+<section class="features">
+  <div class="section-header">
+    <h2>Why Choose BusGoPro?</h2>
+    <p>We make bus travel simple, safe & comfortable</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card" *ngFor="let feature of features">
+      <div class="feature-icon">{{ feature.icon }}</div>
+      <h3>{{ feature.title }}</h3>
+      <p>{{ feature.desc }}</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== OFFERS SECTION ===== -->
+<section class="offers">
+  <div class="section-header">
+    <h2>🎉 Today's Offers</h2>
+    <p>Grab the best deals before they expire!</p>
+  </div>
+  <div class="offers-grid">
+    <div class="offer-card" *ngFor="let offer of offers">
+      <div class="offer-badge">{{ offer.discount }}</div>
+      <div class="offer-code">Code: <strong>{{ offer.code }}</strong></div>
+      <p>{{ offer.desc }}</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TESTIMONIALS ===== -->
+<section class="testimonials">
+  <div class="section-header">
+    <h2>What Our Travelers Say</h2>
+    <p>Real reviews from real passengers</p>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card" *ngFor="let t of testimonials">
+      <div class="t-stars">⭐⭐⭐⭐⭐</div>
+      <p>"{{ t.review }}"</p>
+      <div class="t-author">
+        <div class="t-avatar">{{ t.name[0] }}</div>
+        <div>
+          <strong>{{ t.name }}</strong>
+          <span>{{ t.route }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ABOUT US ===== -->
+<section class="about-us">
+  <div class="about-grid">
+    <div class="about-left">
+      <div class="about-badge">🚌 About BusGoPro</div>
+      <h2>India's Most Trusted<br /><span class="about-highlight">Bus Booking Platform</span></h2>
+      <p class="about-desc">
+        We are a modern bus booking platform that provides passengers with safe, fast,
+        and reliable travel experiences across India. Since 2020, we have connected
+        millions of travelers with 500+ bus operators nationwide.
+      </p>
+      <div class="about-stats">
+        <div class="about-stat"><strong>2M+</strong><span>Happy Travelers</span></div>
+        <div class="about-stat"><strong>500+</strong><span>Bus Operators</span></div>
+        <div class="about-stat"><strong>10K+</strong><span>Routes Covered</span></div>
+      </div>
+      <div class="about-points">
+        <div class="about-point" *ngFor="let point of aboutPoints">
+          <div class="point-icon">{{ point.icon }}</div>
+          <div class="point-text">
+            <strong>{{ point.title }}</strong>
+            <p>{{ point.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="about-right">
+      <div class="about-img-card">
+        <div class="img-main">🚌</div>
+        <div class="floating-card fc1"><span>⭐ 4.8/5</span><small>App Rating</small></div>
+        <div class="floating-card fc2"><span>✅ 2M+</span><small>Bookings Done</small></div>
+        <div class="floating-card fc3"><span>🏆 #1</span><small>Bus Platform</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== NEWSLETTER ===== -->
+<section class="newsletter">
+  <div class="newsletter-inner">
+    <h2>📬 Get Exclusive Deals!</h2>
+    <p>Subscribe to our newsletter and never miss a great bus deal, promo code, or travel update.</p>
+    <div class="newsletter-form">
+      <input type="email" placeholder="Enter your email address" [(ngModel)]="newsletterEmail" />
+      <button (click)="subscribeNewsletter()">Subscribe Free →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer-bg-circle fbc1"></div>
+  <div class="footer-bg-circle fbc2"></div>
+
+  <div class="footer-cta-strip">
+    <div class="cta-text">
+      <h3>🚌 Ready to Book Your Next Trip?</h3>
+      <p>Join 2 million+ travelers who trust BusGoPro for every journey.</p>
+    </div>
+    <button class="cta-btn" (click)="scrollToSearch()">Book Now — It's Free →</button>
+  </div>
+
+  <div class="footer-main">
+    <div class="footer-stats-bar">
+      <div class="footer-stat"><strong>2M+</strong><span>Happy Travelers</span></div>
+      <div class="footer-stat"><strong>500+</strong><span>Bus Operators</span></div>
+      <div class="footer-stat"><strong>10,000+</strong><span>Routes</span></div>
+      <div class="footer-stat"><strong>4.8 ⭐</strong><span>App Rating</span></div>
+    </div>
+
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <span class="logo-icon">🚌</span>
+          <span class="logo-text">BusGo<span class="accent">Pro</span></span>
+        </div>
+        <p class="brand-desc">India's most trusted bus booking platform.</p>
+        <div class="social-links">
+          <a class="social-link" href="#">📘</a>
+          <a class="social-link" href="#">📸</a>
+          <a class="social-link" href="#">🐦</a>
+          <a class="social-link" href="#">▶️</a>
+        </div>
+        <div class="app-badges">
+          <div class="app-badge">
+            <span>🍎</span>
+            <div><small>Download on the</small><strong>App Store</strong></div>
+          </div>
+          <div class="app-badge">
+            <span>🤖</span>
+            <div><small>Get it on</small><strong>Google Play</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#">About Us</a>
+        <a href="#">Careers</a>
+        <a href="#">Blog</a>
+        <a href="#">Press</a>
+        <a href="#">Partners</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Support</h4>
+        <a href="#">Help Center</a>
+        <a href="#">Cancellation Policy</a>
+        <a href="#">Refund Policy</a>
+        <a href="#">Track My Bus</a>
+        <a href="#">Report Issue</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Popular Routes</h4>
+        <a href="#">Delhi → Jaipur</a>
+        <a href="#">Mumbai → Pune</a>
+        <a href="#">Bangalore → Chennai</a>
+        <a href="#">Delhi → Agra</a>
+        <a href="#">Hyderabad → Goa</a>
+      </div>
+
+      <div class="footer-contact">
+        <h4>Contact Us</h4>
+        <div class="contact-item">
+          <span class="contact-icon">📧</span>
+          <div><small>Email</small><span>support@busgopro.in</span></div>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">📞</span>
+          <div><small>Phone</small><span>1800-123-4567</span></div>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">🕐</span>
+          <div><small>Working Hours</small><span>24/7 Support</span></div>
+        </div>
+        <div class="contact-item">
+          <span class="contact-icon">📍</span>
+          <div><small>Office</small><span>Mumbai, India</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-copy">
+        <p>© 2025 BusGoPro. All rights reserved.</p>
+      </div>
+      <div class="footer-legal">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Policy</a>
+        <a href="#">Sitemap</a>
+      </div>
+      <div class="footer-made">
+        Made with <span>❤️</span> in India
+      </div>
+    </div>
+  </div>
+</footer>

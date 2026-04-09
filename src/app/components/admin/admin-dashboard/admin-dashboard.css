@@ -1,0 +1,289 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Calibri, sans-serif;
+  background: #f0f4f8;
+}
+
+/* ── Sidebar ──────────────────────────────────── */
+.sidebar {
+  width: 220px;
+  background: #0D2137;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  position: fixed;
+  height: 100vh;
+  top: 0; left: 0;
+  z-index: 100;
+}
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 36px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.logo-icon { font-size: 28px; }
+.logo-text  { font-size: 18px; font-weight: 700; color: #ffffff; }
+
+nav { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: transparent;
+  color: #94A3B8;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  width: 100%;
+}
+.nav-btn:hover, .nav-btn.active {
+  background: #0D9488;
+  color: #ffffff;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(239,68,68,0.15);
+  color: #FCA5A5;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 16px;
+  width: 100%;
+}
+.logout-btn:hover { background: #EF4444; color: white; }
+
+/* ── Content ──────────────────────────────────── */
+.content {
+  margin-left: 220px;
+  flex: 1;
+  padding: 28px 32px;
+  min-height: 100vh;
+  /* ✅ Fix: navbar ke neeche content shuru ho */
+  padding-top: 84px;
+}
+
+/* ── Topbar ───────────────────────────────────── */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.topbar-title h1 { font-size: 24px; font-weight: 700; color: #0D2137; }
+.topbar-title p  { font-size: 13px; color: #64748B; margin-top: 4px; }
+
+.add-btn {
+  padding: 12px 24px;
+  background: #0D9488;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+  /* ✅ Fix: navbar ke peeche na chhuupe */
+  position: relative;
+  z-index: 1;
+}
+.add-btn:hover { background: #0f766e; }
+
+.stats-badge {
+  padding: 10px 20px;
+  background: #EFF9F8;
+  color: #0D9488;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid #0D9488;
+}
+
+/* ── Alerts ───────────────────────────────────── */
+.alert {
+  padding: 12px 18px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.alert.success { background: #D1FAE5; color: #065F46; border-left: 4px solid #10B981; }
+.alert.error   { background: #FEE2E2; color: #991B1B; border-left: 4px solid #EF4444; }
+
+/* ── Form Card ────────────────────────────────── */
+.form-card {
+  background: white;
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border-top: 4px solid #0D9488;
+}
+.form-card h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0D2137;
+  margin-bottom: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1E293B;
+  transition: border 0.2s;
+  outline: none;
+  font-family: 'Segoe UI', Calibri, sans-serif;
+}
+.form-group input:focus { border-color: #0D9488; }
+
+.form-actions { display: flex; gap: 12px; }
+
+.save-btn {
+  padding: 11px 28px;
+  background: #0D9488;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.save-btn:hover { background: #0f766e; }
+
+.cancel-btn {
+  padding: 11px 22px;
+  background: #F1F5F9;
+  color: #64748B;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cancel-btn:hover { background: #E2E8F0; }
+
+/* ── Table Card ───────────────────────────────── */
+.table-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+}
+
+.loading, .empty {
+  text-align: center;
+  padding: 60px;
+  color: #64748B;
+  font-size: 15px;
+}
+
+table { width: 100%; border-collapse: collapse; }
+
+thead tr { background: #0D2137; }
+thead th {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #94A3B8;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+tbody tr { border-bottom: 1px solid #F1F5F9; transition: background 0.15s; }
+tbody tr:hover { background: #F8FAFC; }
+tbody td { padding: 13px 16px; font-size: 14px; color: #1E293B; }
+
+.badge {
+  background: #EFF9F8;
+  color: #0D9488;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.price { font-weight: 700; color: #0D9488; }
+
+.actions { display: flex; gap: 8px; }
+
+.edit-btn {
+  padding: 6px 14px;
+  background: #EFF9F8;
+  color: #0D9488;
+  border: 1px solid #0D9488;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.edit-btn:hover { background: #0D9488; color: white; }
+
+.delete-btn {
+  padding: 6px 14px;
+  background: #FEF2F2;
+  color: #EF4444;
+  border: 1px solid #EF4444;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.delete-btn:hover { background: #EF4444; color: white; }
+
+/* ✅ admin-dashboard.css ke END mein ADD karo */
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #FEF3C7;
+  color: #D97706;
+  text-transform: capitalize;
+}
+
+.status-badge.confirmed {
+  background: #D1FAE5;
+  color: #065F46;
+}

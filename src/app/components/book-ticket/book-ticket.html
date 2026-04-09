@@ -1,0 +1,349 @@
+<div class="booking-page">
+
+  <!-- SUCCESS PAGE -->
+  <div class="success-page" *ngIf="bookingSuccess">
+    <div class="success-card">
+      <div class="success-user">
+        <div class="user-avatar">{{ userName.charAt(0).toUpperCase() }}</div>
+        <h3>Hello, {{ userName }}! 👋</h3>
+        <p>Your booking is confirmed!</p>
+      </div>
+      <div class="success-icon">✅</div>
+      <h2>Booking Confirmed!</h2>
+      <p class="booking-ref">Booking ID: <strong>{{ bookingId }}</strong></p>
+
+      <div class="success-details">
+        <div class="detail-row"><span>🚌 Bus</span><strong>{{ bus?.name }}</strong></div>
+        <div class="detail-row"><span>🏢 Operator</span><strong>{{ bus?.operator }}</strong></div>
+        <div class="detail-row"><span>📍 From</span><strong>{{ from }}</strong></div>
+        <div class="detail-row"><span>📍 To</span><strong>{{ to }}</strong></div>
+        <div class="detail-row"><span>🕐 Departure</span><strong>{{ bus?.departure }}</strong></div>
+        <div class="detail-row"><span>🕐 Arrival</span><strong>{{ bus?.arrival }}</strong></div>
+        <div class="detail-row"><span>📅 Date</span><strong>{{ formatDate(date) }}</strong></div>
+        <div class="detail-row"><span>💺 Seats</span><strong>{{ selectedSeats.join(', ') }}</strong></div>
+        <div class="detail-row"><span>💰 Total Paid</span><strong class="price-green">₹{{ totalPrice }}</strong></div>
+        <div class="detail-row"><span>💳 Payment</span><strong>{{ paymentMethod | uppercase }}</strong></div>
+      </div>
+
+      <!-- Passenger Details -->
+      <div class="passenger-details-section">
+        <h4>👥 Passenger Details</h4>
+        <div class="passenger-detail-card" *ngFor="let p of passengers; let i = index">
+          <div class="p-seat-tag">Seat {{ selectedSeats[i] }}</div>
+          <div class="p-info">
+            <span class="p-name">{{ p.name }}</span>
+            <span class="p-meta">{{ p.age }} yrs • {{ p.gender }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ticket-actions">
+        <button class="download-btn" (click)="downloadTicket()">📄 Download Ticket (PDF)</button>
+        <button class="home-btn" (click)="goHome()">🏠 Go to Home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKING FLOW -->
+  <div *ngIf="!bookingSuccess">
+
+    <!-- HEADER -->
+    <div class="booking-header">
+      <button class="back-btn" (click)="goBack()">← Back</button>
+      <div class="header-info">
+        <h2>{{ from }} → {{ to }}</h2>
+        <span>{{ formatDate(date) }}</span>
+      </div>
+      <div class="steps">
+        <div class="step" [class.active]="currentStep >= 1" [class.done]="currentStep > 1">
+          <div class="step-num">1</div><span>Seats</span>
+        </div>
+        <div class="step-line" [class.done]="currentStep > 1"></div>
+        <div class="step" [class.active]="currentStep >= 2" [class.done]="currentStep > 2">
+          <div class="step-num">2</div><span>Passengers</span>
+        </div>
+        <div class="step-line" [class.done]="currentStep > 2"></div>
+        <div class="step" [class.active]="currentStep >= 3">
+          <div class="step-num">3</div><span>Review</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="booking-body">
+
+      <!-- BUS INFO CARD -->
+      <div class="bus-info-card">
+        <div class="bus-header-row">
+          <span class="bus-icon-big">🚌</span>
+          <div class="bus-title">
+            <h3>{{ bus?.name }}</h3>
+            <span class="operator">{{ bus?.operator }}</span>
+          </div>
+          <div class="bus-badges">
+            <span class="type-badge">{{ bus?.type }}</span>
+            <span class="rating-badge">⭐ {{ bus?.rating }}/5</span>
+          </div>
+        </div>
+        <div class="route-timeline">
+          <div class="route-point">
+            <div class="route-dot departure-dot"></div>
+            <div class="route-city-info">
+              <div class="route-time">{{ bus?.departure }}</div>
+              <div class="route-city">{{ from }}</div>
+              <div class="route-label">Departure</div>
+            </div>
+          </div>
+          <div class="route-middle">
+            <div class="route-line"><div class="route-line-inner"></div></div>
+            <div class="route-duration"><span>🕐 {{ getDuration() }}</span></div>
+          </div>
+          <div class="route-point">
+            <div class="route-dot arrival-dot"></div>
+            <div class="route-city-info">
+              <div class="route-time">{{ bus?.arrival }}</div>
+              <div class="route-city">{{ to }}</div>
+              <div class="route-label">Arrival</div>
+            </div>
+          </div>
+        </div>
+        <div class="bus-features">
+          <div class="feature-item"><span class="feature-icon">💺</span><span>{{ bus?.seats }} Seats</span></div>
+          <div class="feature-item"><span class="feature-icon">❄️</span><span>{{ bus?.type?.includes('AC') ? 'AC' : 'Non-AC' }}</span></div>
+          <div class="feature-item"><span class="feature-icon">📍</span><span>Live Tracking</span></div>
+          <div class="feature-item"><span class="feature-icon">💳</span><span>Free Cancellation</span></div>
+          <div class="feature-item"><span class="feature-icon">📱</span><span>M-Ticket</span></div>
+          <div class="feature-item price-feature"><span class="feature-icon">💰</span><span>₹{{ basePrice }}/seat</span></div>
+        </div>
+      </div>
+
+      <!-- STEP 1: SEAT SELECTION -->
+      <div class="step-content" *ngIf="currentStep === 1">
+        <div class="step-card">
+          <h3 class="step-title">💺 Select Your Seats</h3>
+
+          <!-- ✅ Loading seats from backend -->
+          <div *ngIf="loadingSeats" style="text-align:center;padding:40px;color:#64748b;">
+            <div class="spinner"></div>
+            <p style="margin-top:12px;">Loading seat availability...</p>
+          </div>
+
+          <div *ngIf="!loadingSeats">
+            <div class="seat-legend">
+              <div class="legend-item"><div class="legend-box available"></div><span>Available</span></div>
+              <div class="legend-item"><div class="legend-box selected"></div><span>Selected ({{ selectedSeats.length }})</span></div>
+              <div class="legend-item"><div class="legend-box booked"></div><span>Booked</span></div>
+            </div>
+
+            <!-- ✅ Booked seats info -->
+            <div class="booked-info" *ngIf="bookedSeats.length > 0">
+              🔒 {{ bookedSeats.length }} seat(s) already booked for this date
+            </div>
+
+            <div class="bus-layout">
+              <div class="bus-front">
+                <div class="driver-seat">🚗 Driver</div>
+                <div class="entry-door">🚪 Entry</div>
+              </div>
+              <div class="seat-labels">
+                <span>A</span><span>B</span><span class="gap-label"></span><span>C</span><span>D</span>
+              </div>
+              <div class="seats-grid">
+                <div class="seat-row" *ngFor="let row of getSeatRows(); let rowIndex = index">
+                  <span class="row-number">{{ rowIndex + 1 }}</span>
+                  <ng-container *ngFor="let seat of row">
+                    <div *ngIf="seat === null" class="aisle-gap"></div>
+                    <div *ngIf="seat !== null" [ngClass]="getSeatClass(seat)" (click)="toggleSeat(seat)">{{ seat }}</div>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+
+            <div class="selected-info" [class.ready]="selectedSeats.length > 0">
+              <span>Selected: <strong>{{ selectedSeats.length > 0 ? selectedSeats.join(', ') : 'None' }}</strong></span>
+              <span>Subtotal: <strong class="price-green">₹{{ basePrice * selectedSeats.length }}</strong></span>
+            </div>
+            <button class="next-btn" (click)="goToStep2()">Continue to Passenger Details →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: PASSENGER DETAILS -->
+      <div class="step-content" *ngIf="currentStep === 2">
+        <div class="step-card">
+          <h3 class="step-title">👤 Passenger Details</h3>
+          <div class="passenger-form" *ngFor="let p of passengers; let i = index">
+            <div class="passenger-header">
+              <span class="passenger-num">Passenger {{ i + 1 }}</span>
+              <span class="seat-tag">Seat {{ selectedSeats[i] }}</span>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" [(ngModel)]="p.name" placeholder="Enter full name" />
+              </div>
+              <div class="form-group">
+                <label>Age *</label>
+                <input type="number" [(ngModel)]="p.age" placeholder="Age" min="1" max="100" />
+              </div>
+              <div class="form-group">
+                <label>Gender</label>
+                <select [(ngModel)]="p.gender">
+                  <option>Male</option>
+                  <option>Female</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <button class="next-btn" (click)="goToStep3()">Review Booking →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: REVIEW + PAYMENT -->
+      <div class="step-content" *ngIf="currentStep === 3">
+        <div class="step-card">
+          <h3 class="step-title">📋 Review Your Booking</h3>
+
+          <div class="review-section">
+            <h4>🚌 Journey Details</h4>
+            <div class="review-row"><span>Bus Name</span><strong>{{ bus?.name }}</strong></div>
+            <div class="review-row"><span>Operator</span><strong>{{ bus?.operator }}</strong></div>
+            <div class="review-row"><span>Bus Type</span><strong>{{ bus?.type }}</strong></div>
+            <div class="review-row"><span>From</span><strong>{{ from }}</strong></div>
+            <div class="review-row"><span>To</span><strong>{{ to }}</strong></div>
+            <div class="review-row"><span>Date</span><strong>{{ formatDate(date) }}</strong></div>
+            <div class="review-row"><span>Departure</span><strong>{{ bus?.departure }}</strong></div>
+            <div class="review-row"><span>Arrival</span><strong>{{ bus?.arrival }}</strong></div>
+            <div class="review-row"><span>Duration</span><strong>{{ getDuration() }}</strong></div>
+          </div>
+
+          <div class="review-section">
+            <h4>💺 Seat Details</h4>
+            <div class="review-row"><span>Selected Seats</span><strong>{{ selectedSeats.join(', ') }}</strong></div>
+            <div class="review-row"><span>Total Passengers</span><strong>{{ passengerCount }}</strong></div>
+          </div>
+
+          <div class="review-section">
+            <h4>👤 Passengers</h4>
+            <div class="passenger-review" *ngFor="let p of passengers; let i = index">
+              <span class="seat-tag">Seat {{ selectedSeats[i] }}</span>
+              <span>{{ p.name }}</span>
+              <span>{{ p.age }} yrs</span>
+              <span>{{ p.gender }}</span>
+            </div>
+          </div>
+
+          <div class="review-section price-section">
+            <h4>💰 Price Breakdown</h4>
+            <div class="review-row"><span>Base Fare ({{ passengerCount }} × ₹{{ basePrice }})</span><strong>₹{{ basePrice * passengerCount }}</strong></div>
+            <div class="review-row"><span>GST (5%)</span><strong>₹{{ taxes }}</strong></div>
+            <div class="review-row total-row"><span>Total Amount</span><strong class="price-green">₹{{ totalPrice }}</strong></div>
+          </div>
+
+          <!-- PAYMENT -->
+          <div class="review-section payment-section">
+            <h4>💳 Select Payment Method</h4>
+            <div class="payment-options">
+              <div class="payment-card" [class.active]="paymentMethod === 'upi'" (click)="paymentMethod = 'upi'">
+                <div class="payment-icon">📱</div>
+                <div class="payment-label">UPI</div>
+              </div>
+              <div class="payment-card" [class.active]="paymentMethod === 'card'" (click)="paymentMethod = 'card'">
+                <div class="payment-icon">💳</div>
+                <div class="payment-label">Card</div>
+              </div>
+              <div class="payment-card" [class.active]="paymentMethod === 'netbanking'" (click)="paymentMethod = 'netbanking'">
+                <div class="payment-icon">🏦</div>
+                <div class="payment-label">Net Banking</div>
+              </div>
+            </div>
+
+            <!-- UPI -->
+            <div class="payment-details" *ngIf="paymentMethod === 'upi'">
+              <div class="upi-apps">
+                <div class="upi-app" [class.active]="upiApp === 'gpay'" (click)="upiApp = 'gpay'">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Google_Pay_Logo.svg/320px-Google_Pay_Logo.svg.png" alt="GPay" />
+                  <span>Google Pay</span>
+                </div>
+                <div class="upi-app" [class.active]="upiApp === 'paytm'" (click)="upiApp = 'paytm'">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Paytm_logo.png/320px-Paytm_logo.png" alt="Paytm" />
+                  <span>Paytm</span>
+                </div>
+                <div class="upi-app" [class.active]="upiApp === 'phonepe'" (click)="upiApp = 'phonepe'">
+                  <div class="phonepe-logo">Ph<span>one</span>Pe</div>
+                  <span>PhonePe</span>
+                </div>
+              </div>
+              <div class="upi-payment-box" *ngIf="upiApp">
+                <div class="qr-box">
+                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=busgopro@paytm&pn=BusGoPro&am={{totalPrice}}&cu=INR" alt="QR Code" />
+                  <p>Scan with {{ upiApp === 'gpay' ? 'Google Pay' : upiApp === 'paytm' ? 'Paytm' : 'PhonePe' }}</p>
+                </div>
+                <div class="upi-divider">OR</div>
+                <div class="upi-id-box">
+                  <label>Enter UPI ID</label>
+                  <input type="text" [(ngModel)]="upiId" placeholder="yourname@upi" />
+                </div>
+              </div>
+            </div>
+
+            <!-- CARD -->
+            <div class="payment-details" *ngIf="paymentMethod === 'card'">
+              <div class="card-type-row">
+                <div class="card-type" [class.active]="cardType === 'credit'" (click)="cardType = 'credit'">💳 Credit Card</div>
+                <div class="card-type" [class.active]="cardType === 'debit'" (click)="cardType = 'debit'">🏧 Debit Card</div>
+              </div>
+              <div class="card-form">
+                <div class="form-group">
+                  <label>Card Number</label>
+                  <input type="text" [(ngModel)]="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" (input)="formatCard()" />
+                </div>
+                <div class="card-row">
+                  <div class="form-group">
+                    <label>Expiry Date</label>
+                    <input type="text" [(ngModel)]="cardExpiry" placeholder="MM/YY" maxlength="5" />
+                  </div>
+                  <div class="form-group">
+                    <label>CVV</label>
+                    <input type="password" [(ngModel)]="cardCvv" placeholder="***" maxlength="3" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Card Holder Name</label>
+                  <input type="text" [(ngModel)]="cardName" placeholder="Name on card" />
+                </div>
+              </div>
+            </div>
+
+            <!-- NET BANKING -->
+            <div class="payment-details" *ngIf="paymentMethod === 'netbanking'">
+              <div class="bank-list">
+                <div class="bank-item" [class.active]="selectedBank === 'sbi'" (click)="selectedBank = 'sbi'">🏦 SBI</div>
+                <div class="bank-item" [class.active]="selectedBank === 'hdfc'" (click)="selectedBank = 'hdfc'">🏦 HDFC</div>
+                <div class="bank-item" [class.active]="selectedBank === 'icici'" (click)="selectedBank = 'icici'">🏦 ICICI</div>
+                <div class="bank-item" [class.active]="selectedBank === 'axis'" (click)="selectedBank = 'axis'">🏦 Axis</div>
+                <div class="bank-item" [class.active]="selectedBank === 'kotak'" (click)="selectedBank = 'kotak'">🏦 Kotak</div>
+                <div class="bank-item" [class.active]="selectedBank === 'pnb'" (click)="selectedBank = 'pnb'">🏦 PNB</div>
+              </div>
+              <div class="netbanking-form" *ngIf="selectedBank">
+                <div class="form-group">
+                  <label>Account Number</label>
+                  <input type="text" [(ngModel)]="accountNumber" placeholder="Enter account number" />
+                </div>
+                <div class="form-group">
+                  <label>IFSC Code</label>
+                  <input type="text" [(ngModel)]="ifscCode" placeholder="SBIN0001234" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="confirm-btn" (click)="confirmBooking()">
+            ✅ Pay ₹{{ totalPrice }} & Confirm Booking
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

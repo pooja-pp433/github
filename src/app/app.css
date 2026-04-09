@@ -1,0 +1,31 @@
+/* ===== app.css ke END mein ADD karo ===== */
+
+/* Logged-in user ka naam */
+.nav-username {
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 7px 14px;
+  border-radius: 20px;
+  letter-spacing: 0.2px;
+}
+
+/* Logout button */
+.btn-logout {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+  line-height: 1;
+}
+
+.btn-logout:hover {
+  opacity: 0.88;
+  transform: scale(1.04);
+}

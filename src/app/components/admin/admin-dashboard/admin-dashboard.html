@@ -1,0 +1,235 @@
+<div class="dashboard">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">🚌</span>
+      <span class="logo-text">BusGoPro</span>
+    </div>
+    <nav>
+      <button class="nav-btn" [class.active]="currentSection === 'buses'" (click)="switchSection('buses')">
+        <span>🚌</span> Manage Buses
+      </button>
+      <button class="nav-btn" [class.active]="currentSection === 'users'" (click)="switchSection('users')">
+        <span>👥</span> Manage Users
+      </button>
+      <button class="nav-btn" [class.active]="currentSection === 'bookings'" (click)="switchSection('bookings')">
+        <span>🎫</span> Manage Bookings
+      </button>
+    </nav>
+    <button class="logout-btn" (click)="logout()">
+      <span>🚪</span> Logout
+    </button>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="content">
+
+    <!-- ══════════════════════════ -->
+    <!-- BUSES SECTION             -->
+    <!-- ══════════════════════════ -->
+    <div *ngIf="currentSection === 'buses'">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h1>🚌 Manage Buses</h1>
+          <p>Add, edit, and delete buses from the system</p>
+        </div>
+        <button class="add-btn" (click)="openAddForm()">+ Add New Bus</button>
+      </div>
+
+      <div class="alert success" *ngIf="successMsg">✅ {{ successMsg }}</div>
+      <div class="alert error"   *ngIf="errorMsg">❌ {{ errorMsg }}</div>
+
+      <div class="form-card" *ngIf="showForm">
+        <h2>{{ editMode ? '✏️ Edit Bus' : '➕ Add New Bus' }}</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Bus Name *</label>
+            <input [(ngModel)]="formData.busName" placeholder="e.g. Rajdhani Express" />
+          </div>
+          <div class="form-group">
+            <label>Bus Operator *</label>
+            <input [(ngModel)]="formData.busNumber" placeholder="e.g. VRL Travels" />
+          </div>
+          <div class="form-group">
+            <label>From (City) *</label>
+            <input [(ngModel)]="formData.from" placeholder="e.g. Surat" />
+          </div>
+          <div class="form-group">
+            <label>To (City) *</label>
+            <input [(ngModel)]="formData.to" placeholder="e.g. Mumbai" />
+          </div>
+          <div class="form-group">
+            <label>Departure Time</label>
+            <input [(ngModel)]="formData.departure" type="time" />
+          </div>
+          <div class="form-group">
+            <label>Total Seats</label>
+            <input [(ngModel)]="formData.totalSeats" type="number" placeholder="e.g. 40" />
+          </div>
+          <div class="form-group">
+            <label>Price per Seat (₹)</label>
+            <input [(ngModel)]="formData.price" type="number" placeholder="e.g. 350" />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="save-btn" (click)="saveBus()">{{ editMode ? 'Update Bus' : 'Add Bus' }}</button>
+          <button class="cancel-btn" (click)="closeForm()">Cancel</button>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="loading" *ngIf="loading">⏳ Loading buses...</div>
+        <div class="empty" *ngIf="!loading && buses.length === 0">
+          🚌 No buses found. Click "+ Add New Bus" to get started!
+        </div>
+        <table *ngIf="!loading && buses.length > 0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Bus Name</th>
+              <th>Bus Operator</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Departure</th>
+              <th>Seats</th>
+              <th>Price</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let bus of buses; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td><strong>{{ bus.busName || bus.name || '—' }}</strong></td>
+              <td><span class="badge">{{ bus.busNumber || bus.operator || '—' }}</span></td>
+              <td>{{ bus.from }}</td>
+              <td>{{ bus.to }}</td>
+              <td>{{ bus.departure || '—' }}</td>
+              <td>{{ bus.totalSeats || bus.seats || '—' }}</td>
+              <td><span class="price">₹{{ bus.price }}</span></td>
+              <td class="actions">
+                <button class="edit-btn"   (click)="editBus(bus)">✏️ Edit</button>
+                <button class="delete-btn" (click)="deleteBus(bus._id)">🗑️ Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════ -->
+    <!-- USERS SECTION             -->
+    <!-- ══════════════════════════ -->
+    <div *ngIf="currentSection === 'users'">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h1>👥 Manage Users</h1>
+          <p>View and delete registered users</p>
+        </div>
+        <div class="stats-badge">Total: {{ users.length }} Users</div>
+      </div>
+
+      <div class="alert success" *ngIf="successMsg">✅ {{ successMsg }}</div>
+      <div class="alert error"   *ngIf="errorMsg">❌ {{ errorMsg }}</div>
+
+      <div class="table-card">
+        <div class="loading" *ngIf="loadingUsers">⏳ Loading users...</div>
+        <div class="empty" *ngIf="!loadingUsers && users.length === 0">
+          👥 No registered users found.
+        </div>
+        <table *ngIf="!loadingUsers && users.length > 0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Registered On</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td><strong>{{ user.name }}</strong></td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.phone || '—' }}</td>
+              <td>{{ user.createdAt | date:'dd MMM yyyy' }}</td>
+              <td class="actions">
+                <button class="delete-btn" (click)="deleteUser(user._id)">🗑️ Delete</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════ -->
+    <!-- BOOKINGS SECTION ✅ NEW   -->
+    <!-- ══════════════════════════ -->
+    <div *ngIf="currentSection === 'bookings'">
+      <div class="topbar">
+        <div class="topbar-title">
+          <h1>🎫 Manage Bookings</h1>
+          <p>All bookings made by users</p>
+        </div>
+        <div class="stats-badge">Total: {{ bookings.length }} Bookings</div>
+      </div>
+
+      <div class="alert success" *ngIf="successMsg">✅ {{ successMsg }}</div>
+      <div class="alert error"   *ngIf="errorMsg">❌ {{ errorMsg }}</div>
+
+      <div class="table-card">
+        <div class="loading" *ngIf="loadingBookings">⏳ Loading bookings...</div>
+        <div class="empty" *ngIf="!loadingBookings && bookings.length === 0">
+          🎫 No bookings found yet.
+        </div>
+        <table *ngIf="!loadingBookings && bookings.length > 0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Passenger</th>
+              <th>Bus</th>
+              <th>From → To</th>
+              <th>Date</th>
+              <th>Departure</th>
+              <th>Arrival</th>
+              <th>Seats</th>
+              <th>Payment</th>
+              <th>Total</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let b of bookings; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>
+                <strong>{{ b.userName || '—' }}</strong>
+                <div style="font-size:11px; color:#64748b;">{{ b.userEmail || '' }}</div>
+              </td>
+              <td>
+                <strong>{{ b.busName || '—' }}</strong>
+                <div style="font-size:11px; color:#64748b;">{{ b.busOperator || '' }}</div>
+              </td>
+              <td>{{ b.from }} → {{ b.to }}</td>
+              <td>{{ formatDate(b.date) }}</td>
+              <td>{{ b.departure || '—' }}</td>
+              <td>{{ b.arrival || '—' }}</td>
+              <td>
+                <span class="badge">{{ b.selectedSeats?.join(', ') || b.seats || '—' }}</span>
+              </td>
+              <td style="text-transform: uppercase;">{{ b.paymentMethod || '—' }}</td>
+              <td><span class="price">₹{{ b.totalPrice }}</span></td>
+              <td>
+                <span class="status-badge" [class.confirmed]="b.status === 'confirmed'">
+                  {{ b.status || 'confirmed' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,164 @@
+<div class="tracking-page">
+
+  <!-- HEADER -->
+  <div class="tracking-header">
+    <button class="back-btn" (click)="goBack()">← Back</button>
+    <div class="header-info">
+      <h2>📍 Live Bus Tracking</h2>
+      <span>{{ busName }} • {{ busOperator }}</span>
+    </div>
+    <div class="header-route">{{ from }} → {{ to }}</div>
+  </div>
+
+  <!-- BUS INFO STRIP -->
+  <div class="bus-strip">
+    <div class="strip-item">
+      <span class="strip-label">🚌 Bus</span>
+      <span class="strip-value">{{ busName }}</span>
+    </div>
+    <div class="strip-divider"></div>
+    <div class="strip-item">
+      <span class="strip-label">📍 From</span>
+      <span class="strip-value">{{ from }}</span>
+    </div>
+    <div class="strip-divider"></div>
+    <div class="strip-item">
+      <span class="strip-label">🏁 To</span>
+      <span class="strip-value">{{ to }}</span>
+    </div>
+    <div class="strip-divider"></div>
+    <div class="strip-item">
+      <span class="strip-label">🕐 Departure</span>
+      <span class="strip-value">{{ departure }}</span>
+    </div>
+    <div class="strip-divider"></div>
+    <div class="strip-item">
+      <span class="strip-label">🏁 Arrival</span>
+      <span class="strip-value">{{ arrival }}</span>
+    </div>
+    <div class="strip-divider"></div>
+    <div class="strip-item">
+      <span class="strip-label">📅 Date</span>
+      <span class="strip-value">{{ formatDate(date) }}</span>
+    </div>
+  </div>
+
+  <!-- TRACKING BODY -->
+  <div class="tracking-body">
+
+    <!-- LEFT: MAP -->
+    <div class="map-section">
+      <div id="tracking-map"></div>
+
+      <!-- LIVE BADGE -->
+      <div class="live-badge" *ngIf="journeyStarted && !journeyCompleted">
+        <div class="live-dot"></div>
+        LIVE
+      </div>
+    </div>
+
+    <!-- RIGHT: STATS -->
+    <div class="stats-section">
+
+      <!-- STATUS -->
+      <div class="status-card" [class.active-status]="journeyStarted && !journeyCompleted"
+                               [class.completed-status]="journeyCompleted">
+        <div class="status-dot" [class.active]="journeyStarted && !journeyCompleted"
+                                [class.completed]="journeyCompleted"></div>
+        <span class="status-text">{{ statusMsg }}</span>
+      </div>
+
+      <!-- PROGRESS BAR -->
+      <div class="progress-card">
+        <div class="progress-header">
+          <span class="prog-city">{{ from }}</span>
+          <span class="prog-pct">{{ progressPercent }}%</span>
+          <span class="prog-city">{{ to }}</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="progressPercent"></div>
+          <div class="bus-on-bar" [style.left.%]="progressPercent">🚌</div>
+        </div>
+        <div class="progress-times">
+          <span>🕐 {{ departure }}</span>
+          <span *ngIf="timeElapsed" class="elapsed">{{ timeElapsed }} elapsed</span>
+          <span>🏁 {{ arrival }}</span>
+        </div>
+      </div>
+
+      <!-- STATS GRID -->
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-icon">📏</div>
+          <div class="stat-value">{{ distanceCovered }} km</div>
+          <div class="stat-label">Covered</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon">🗺️</div>
+          <div class="stat-value">{{ totalDistance - distanceCovered }} km</div>
+          <div class="stat-label">Remaining</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon">⏱️</div>
+          <div class="stat-value">{{ timeElapsed || '—' }}</div>
+          <div class="stat-label">Time Elapsed</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-value">{{ timeRemaining || '—' }}</div>
+          <div class="stat-label">Time Left</div>
+        </div>
+      </div>
+
+      <!-- JOURNEY TIMELINE -->
+      <div class="timeline-card">
+        <h4>🗓️ Journey Timeline</h4>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot green"></div>
+            <div class="tl-info">
+              <strong>{{ from }}</strong>
+              <span>Departure: {{ departure }}</span>
+            </div>
+            <div class="tl-badge green-badge" *ngIf="progressPercent > 0">Departed</div>
+          </div>
+          <div class="tl-line" [class.active-line]="progressPercent >= 50"></div>
+          <div class="tl-item">
+            <div class="tl-dot" [class.blue]="progressPercent >= 50"
+                                [class.grey]="progressPercent < 50"></div>
+            <div class="tl-info">
+              <strong>Midpoint</strong>
+              <span>~{{ totalDistance / 2 | number:'1.0-0' }} km from {{ from }}</span>
+            </div>
+            <div class="tl-badge blue-badge" *ngIf="progressPercent >= 50">Crossed</div>
+          </div>
+          <div class="tl-line" [class.active-line]="progressPercent >= 100"></div>
+          <div class="tl-item">
+            <div class="tl-dot" [class.green]="progressPercent >= 100"
+                                [class.grey]="progressPercent < 100"></div>
+            <div class="tl-info">
+              <strong>{{ to }}</strong>
+              <span>Arrival: {{ arrival }}</span>
+            </div>
+            <div class="tl-badge green-badge" *ngIf="progressPercent >= 100">Arrived ✅</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UPDATE INFO -->
+      <div class="update-info">
+        <span>🔄 Updates every 30 seconds in real-time</span>
+      </div>
+
+      <!-- SEATS INFO -->
+      <div class="seats-card" *ngIf="selectedSeats.length > 0">
+        <h4>💺 Your Seats</h4>
+        <div class="seats-row">
+          <span class="seat-badge" *ngFor="let s of selectedSeats">{{ s }}</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

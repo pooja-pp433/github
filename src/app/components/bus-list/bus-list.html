@@ -1,0 +1,86 @@
+<div class="buslist-page">
+
+  <!-- HEADER -->
+  <div class="buslist-header">
+    <br><br><br><br><br><br><br><br><br><br>
+    <button class="back-btn" (click)="goBack()">← Back</button>
+    <div class="route-info">
+      <h2>{{ from }} → {{ to }}</h2>
+      <span>{{ formattedDate }}</span>
+    </div>
+  </div>
+
+  <!-- ✅ PAST DATE MESSAGE -->
+  <div *ngIf="isPastDate" style="text-align:center; padding:60px 20px;">
+    <div style="font-size:4rem;">📅</div>
+    <h3 style="color:#1e293b; margin:16px 0 8px;">No Buses Available</h3>
+    <p style="color:#64748b;">You selected a past date. Please choose today or a future date to search buses.</p>
+    <button (click)="goBack()" style="margin-top:20px; padding:12px 28px; background:#2563eb; color:white; border:none; border-radius:10px; cursor:pointer; font-size:1rem; font-weight:600;">← Change Date</button>
+  </div>
+
+  <!-- NO RESULTS (empty from/to) -->
+  <div *ngIf="!loading && !isPastDate && noResults" style="text-align:center; padding:60px 20px;">
+  <div style="font-size:4rem;">🌙</div>
+  <h3 style="color:#1e293b; margin:16px 0 8px;">No more buses today!</h3>
+  <p style="color:#64748b;">All buses for {{ from }} → {{ to }} have departed today.</p>
+  <p style="color:#2563eb; font-weight:600; margin-top:8px;">
+    Search for tomorrow to see available buses!
+  </p>
+  <button (click)="searchTomorrow()" 
+          style="margin-top:20px; padding:12px 28px; background:#2563eb; color:white; 
+                 border:none; border-radius:10px; cursor:pointer; font-size:1rem; font-weight:600;">
+    🚌 See Tomorrow's Buses →
+  </button>
+</div>
+  <!-- BUS CARDS -->
+  <div class="buses-container" *ngIf="!loading && !isPastDate && buses.length > 0">
+    <div class="results-count">{{ buses.length }} buses found</div>
+
+    <div class="bus-card" *ngFor="let bus of buses; trackBy: trackBus">
+      <div class="bus-top">
+        <div class="bus-name-sec">
+          <div class="bus-icon">🚌</div>
+          <div>
+            <h3>{{ bus.name }}</h3>
+            <span class="bus-operator">{{ bus.operator }}</span>
+          </div>
+        </div>
+        <div class="bus-type-badge">{{ bus.type }}</div>
+      </div>
+
+      <div class="bus-middle">
+        <div class="time-sec">
+          <div class="time">{{ bus.departure }}</div>
+          <div class="city">{{ from }}</div>
+        </div>
+        <div class="duration-sec">
+          <div class="line"></div>
+          <div class="bus-emoji">🚌</div>
+          <div class="line"></div>
+        </div>
+        <div class="time-sec">
+          <div class="time">{{ bus.arrival }}</div>
+          <div class="city">{{ to }}</div>
+        </div>
+        <div class="rating-sec">
+          <div class="rating">⭐ {{ bus.rating }}</div>
+          <div class="seats">💺 {{ bus.seats }} seats left</div>
+        </div>
+        <div class="price-sec">
+          <div class="price">₹{{ bus.price }}</div>
+          <div class="per-person">per person</div>
+        </div>
+      </div>
+
+      <div class="bus-bottom">
+        <div class="bus-tags">
+          <span class="tag">🎫 Live Tracking</span>
+          <span class="tag">💳 Free Cancellation</span>
+          <span class="tag">📱 M-Ticket</span>
+        </div>
+        <button class="book-btn" (click)="bookBus(bus)">Book Now →</button>
+      </div>
+    </div>
+  </div>
+
+</div>

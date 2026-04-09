@@ -1,0 +1,162 @@
+<div class="my-bookings-page">
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <button class="back-btn" (click)="goHome()">← Home</button>
+    <div class="header-info">
+      <h2>🎫 My Bookings</h2>
+      <span>Hello, {{ userName }}!</span>
+    </div>
+    <div class="booking-count">{{ bookings.length }} Booking(s)</div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading your bookings...</p>
+  </div>
+
+  <!-- EMPTY -->
+  <div class="empty-state" *ngIf="!loading && bookings.length === 0">
+    <div class="empty-icon">🎫</div>
+    <h3>No Bookings Yet!</h3>
+    <p>You haven't booked any bus tickets yet.</p>
+    <button class="book-now-btn" (click)="goHome()">🚌 Book Now</button>
+  </div>
+
+  <!-- BOOKINGS LIST -->
+  <div class="bookings-list" *ngIf="!loading && bookings.length > 0">
+    <div class="booking-card" *ngFor="let b of bookings"
+         [class.cancelled]="b.status === 'cancelled'">
+
+      <!-- STATUS BADGE -->
+      <div class="card-status" [class.confirmed]="b.status === 'confirmed'"
+                                [class.cancelled-badge]="b.status === 'cancelled'">
+        {{ b.status === 'cancelled' ? '❌ Cancelled' : '✅ Confirmed' }}
+      </div>
+
+      <!-- BUS INFO -->
+      <div class="card-top">
+        <div class="bus-info">
+          <h3>🚌 {{ b.busName }}</h3>
+          <span class="operator">{{ b.busOperator }}</span>
+          <span class="bus-type-tag">{{ b.busType }}</span>
+        </div>
+        <div class="booking-id-box">
+          <span class="bid-label">Booking ID</span>
+          <span class="bid-value">{{ b.bookingId || b._id | slice:0:12 }}</span>
+        </div>
+      </div>
+
+      <!-- ROUTE -->
+      <div class="route-row">
+        <div class="route-point">
+          <div class="rtime">{{ b.departure }}</div>
+          <div class="rcity">{{ b.from }}</div>
+        </div>
+        <div class="route-mid">
+          <div class="route-line-bar"></div>
+          <div class="route-date">📅 {{ formatDate(b.date) }}</div>
+        </div>
+        <div class="route-point right">
+          <div class="rtime">{{ b.arrival }}</div>
+          <div class="rcity">{{ b.to }}</div>
+        </div>
+      </div>
+
+      <!-- DETAILS ROW -->
+      <div class="details-row">
+        <div class="detail-chip">💺 Seats: {{ (b.selectedSeats || []).join(', ') }}</div>
+        <div class="detail-chip">👥 {{ b.seats }} Passenger(s)</div>
+        <div class="detail-chip">💳 {{ (b.paymentMethod || '').toUpperCase() }}</div>
+        <div class="detail-chip price-chip">₹{{ b.totalPrice }}</div>
+      </div>
+
+      <!-- PASSENGERS -->
+      <div class="passengers-mini" *ngIf="b.passengers && b.passengers.length > 0">
+        <div class="pax-item" *ngFor="let p of b.passengers; let i = index">
+          <span class="pax-seat">Seat {{ (b.selectedSeats || [])[i] }}</span>
+          <span class="pax-name">{{ p.name }}</span>
+          <span class="pax-meta">{{ p.age }} yrs • {{ p.gender }}</span>
+        </div>
+      </div>
+
+      <!-- REFUND INFO -->
+      <div class="refund-info" *ngIf="b.status === 'cancelled'">
+        <span>💰 Refund: <strong>₹{{ b.refundAmount || 0 }}</strong></span>
+        <span class="refund-status">{{ b.refundStatus === 'initiated' ? '🔄 Refund Initiated' : '❌ No Refund' }}</span>
+      </div>
+
+      <!-- ACTION BUTTONS -->
+      <div class="card-actions">
+        <button class="download-btn" (click)="downloadTicket(b)">
+          📄 Download Ticket
+        </button>
+
+        <!-- ✅ Track Bus — sirf aaj ya future ki confirmed bookings pe -->
+        <button class="track-btn"
+                *ngIf="b.status === 'confirmed' && !isPastBooking(b.date)"
+                (click)="trackBus(b)">
+          📍 Track Bus
+        </button>
+
+        <button class="cancel-btn-card"
+                *ngIf="b.status === 'confirmed'"
+                (click)="openCancelModal(b)">
+          ❌ Cancel
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CANCEL MODAL -->
+  <div class="modal-overlay" *ngIf="showCancelModal" (click)="closeCancelModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+
+      <div *ngIf="!cancelResult">
+        <div class="modal-icon">⚠️</div>
+        <h3>Cancel Ticket?</h3>
+        <p class="modal-sub">{{ selectedBooking?.busName }} — {{ selectedBooking?.from }} → {{ selectedBooking?.to }}</p>
+        <p class="modal-date">📅 {{ formatDate(selectedBooking?.date) }}</p>
+
+        <div class="refund-policy">
+          <h4>💰 Refund Policy</h4>
+          <div class="policy-row green">✅ 3+ days before: <strong>100% refund</strong></div>
+          <div class="policy-row yellow">⚠️ 1-2 days before: <strong>50% refund</strong></div>
+          <div class="policy-row red">❌ Same day: <strong>No refund</strong></div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="modal-cancel-btn" (click)="confirmCancel()" [disabled]="cancelling">
+            {{ cancelling ? '⏳ Cancelling...' : '❌ Yes, Cancel Ticket' }}
+          </button>
+          <button class="modal-close-btn" (click)="closeCancelModal()">← Go Back</button>
+        </div>
+      </div>
+
+      <div *ngIf="cancelResult && !cancelResult.error">
+        <div class="modal-icon">✅</div>
+        <h3>Ticket Cancelled!</h3>
+        <div class="refund-result">
+          <div class="refund-amount">₹{{ cancelResult.refundAmount }}</div>
+          <div class="refund-label">Refund Amount</div>
+          <div class="refund-note">{{ cancelResult.refundMsg }}</div>
+          <div class="refund-time" *ngIf="cancelResult.refundAmount > 0">
+            🕐 Refund in 5-7 business days
+          </div>
+        </div>
+        <button class="modal-close-btn" style="width:100%;margin-top:16px" (click)="closeCancelModal()">Close</button>
+      </div>
+
+      <div *ngIf="cancelResult?.error">
+        <div class="modal-icon">❌</div>
+        <h3>Cancellation Failed</h3>
+        <p>{{ cancelResult.error }}</p>
+        <button class="modal-close-btn" style="width:100%;margin-top:16px" (click)="closeCancelModal()">Close</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
