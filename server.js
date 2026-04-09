@@ -3,16 +3,12 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
 require('dotenv').config();
 
 const app = express();
 
 app.use(cors({
-  origin: [
-    "http://localhost:4200",
-    "https://github-ddsk.vercel.app"
-  ],
+  origin: 'http://localhost:4200',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'Pragma']
 }));
