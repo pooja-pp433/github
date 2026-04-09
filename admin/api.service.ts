@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 @Injectable({ providedIn: 'root' })
 export class ApiService {
 
-  baseUrl = "http://localhost:3000";
+  baseUrl = "https://bus-booking-api.onrender.com/api";
 
   constructor(private http: HttpClient) {}
 
