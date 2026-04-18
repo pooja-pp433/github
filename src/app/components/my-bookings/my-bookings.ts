@@ -22,7 +22,7 @@ export class MyBookings implements OnInit {
   cancelling = false;
   cancelResult: any = null;
 
-  private API = 'http://localhost:5000/api/bookings';
+  private API = 'https://github-1-gezb.onrender.com';
 
   constructor(
     private http: HttpClient,
