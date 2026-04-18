@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const Admin = require('../models/adminModel');
+const Admin = require('../adminModel');
 
 // Fixed admin credentials (sirf yhi ek admin allowed hai)
 const ADMIN_EMAIL = 'busgopro@admin.com';
