@@ -32,9 +32,9 @@ export class AdminDashboardComponent implements OnInit {
     departure: '', totalSeats: 40, price: 0
   };
 
-  private BUS_API      = 'http://localhost:5000/api/buses';
-  private USER_API     = 'http://localhost:5000/api/users';
-  private BOOKING_API  = 'http://localhost:5000/api/bookings'; // ✅ NEW
+ private BUS_API     = 'https://github-1-gezb.onrender.com/api/buses';
+private USER_API    = 'https://github-1-gezb.onrender.com/api/users';
+private BOOKING_API = 'https://github-1-gezb.onrender.com/api/bookings';// ✅ NEW
 
   constructor(
     private router: Router,
