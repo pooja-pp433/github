@@ -27,7 +27,7 @@ export class Login {
     this.error = '';
 
     // Step 1 — Check karo user exist karta hai ya nahi
-    this.http.post<any>('http://localhost:5000/api/auth/check-user', {
+    this.http.post<any>('https://github-1-gezb.onrender.com', {
       email: this.form.email
     }).subscribe({
       next: (res) => {
@@ -40,7 +40,7 @@ export class Login {
         }
 
         // Step 2 — Login karo
-        this.http.post<any>('http://localhost:5000/api/auth/login', this.form).subscribe({
+        this.http.post<any>('https://github-1-gezb.onrender.com', this.form).subscribe({
           next: (loginRes) => {
             // ✅ User aur token save karo
             localStorage.setItem('token', loginRes.token);
